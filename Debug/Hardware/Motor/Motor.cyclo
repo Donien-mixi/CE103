@@ -1,0 +1,2 @@
+../Hardware/Motor/Motor.c:3:6:Motor_Init	1
+../Hardware/Motor/Motor.c:16:6:Motor_SetSpeed	8
