@@ -11,6 +11,7 @@ RM := rm -rf
 -include sources.mk
 -include Hardware/TCRT5000/subdir.mk
 -include Hardware/Motor/subdir.mk
+-include Hardware/E3F/subdir.mk
 -include Drivers/STM32F4xx_HAL_Driver/Src/subdir.mk
 -include Core/Startup/subdir.mk
 -include Core/Src/subdir.mk

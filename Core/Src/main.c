@@ -18,6 +18,8 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "adc.h"
+#include "dma.h"
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
@@ -26,6 +28,8 @@
 /* USER CODE BEGIN Includes */
 #include "TCRT5000.h"
 #include "Motor.h"
+#include "E3F.h"
+
 
 /* USER CODE END Includes */
 
@@ -49,6 +53,11 @@
 
 /* USER CODE BEGIN PV */
 Motor_t motorL, motorR;
+LineArrayADC_t	LineArray;
+
+E3FArray_t DistanceArray;
+GPIO_TypeDef* e3f_ports[E3F_COUNT] = {GPIOB, GPIOB, GPIOB, GPIOB, GPIOA, GPIOA};
+uint16_t e3f_pins[E3F_COUNT] = {GPIO_PIN_12, GPIO_PIN_13, GPIO_PIN_14, GPIO_PIN_15, GPIO_PIN_8, GPIO_PIN_11};
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -62,8 +71,12 @@ int _write(int file, char *ptr, int len) {
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-LineSensorArray_t RobotLine;
-uint8_t lineData = 0;
+
+void Find(){
+
+}
+
+
 
 /* USER CODE END 0 */
 
@@ -96,8 +109,10 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_USART1_UART_Init();
   MX_TIM2_Init();
+  MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
 
   //GPIO_TypeDef* ports_linesensor[5] = {GPIOB, GPIOB, GPIOB, GPIOB, GPIOB};
@@ -105,6 +120,8 @@ int main(void)
 
    // Khởi tạo: Vạch đen giả sử là HIGH (GPIO_PIN_SET)
    //LineArray_Init(&RobotLine, ports_linesensor, pins_linesensor, GPIO_PIN_SET);
+
+   E3FArray_Init(&DistanceArray, e3f_ports, e3f_pins, GPIO_PIN_RESET);
 
    Motor_Init(&motorL, &htim2, TIM_CHANNEL_2, GPIOB, GPIO_PIN_6, GPIOB, GPIO_PIN_7);
    Motor_Init(&motorR, &htim2, TIM_CHANNEL_3, GPIOB, GPIO_PIN_8, GPIOB, GPIO_PIN_9);
@@ -133,6 +150,8 @@ int main(void)
 
 	  Motor_SetSpeed(&motorL, 1000);
 	  Motor_SetSpeed(&motorR, 1000);
+
+	  Find();
 	   printf("%d\n\r", 12); // Trích xuất từng bit từ 4 đến 0
 
 	  HAL_Delay(5000);

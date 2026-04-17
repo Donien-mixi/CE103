@@ -1,0 +1,3 @@
+../Hardware/E3F/E3F.c:12:6:E3FArray_Init	32	static
+../Hardware/E3F/E3F.c:22:6:E3FArray_Update	24	static
+../Hardware/E3F/E3F.c:32:6:E3FArray_NoDetection	24	static

@@ -3,27 +3,35 @@
 /**
  * @brief Khởi tạo mảng cảm biến
  */
-void LineArray_Init(LineSensorArray_t *array, GPIO_TypeDef** ports, uint16_t* pins, GPIO_PinState activeLevel) {
-    array->ActiveLevel = activeLevel;
-    for (int i = 0; i < SENSOR_COUNT; i++) {
-        array->Sensors[i].Port = ports[i];
-        array->Sensors[i].Pin = pins[i];
+void LineArrayADC_Init(LineArrayADC_t *array, ADC_HandleTypeDef* hadc, uint16_t threshold) {
+    array->AdcHandle = hadc;
+    array->Threshold = threshold;
+
+    // Bắt đầu cho phép ADC lấy mẫu liên tục và đẩy vào RAM qua DMA
+    // Lưu ý: Số lượng chuyển đổi (Number of Conversion) trong CubeMX phải khớp với SENSOR_COUNT
+    HAL_ADC_Start_DMA(array->AdcHandle, (uint32_t*)array->RawData, LINE_SENSOR_COUNT);
+}
+
+void LineArrayADC_UpdateLogic(LineArrayADC_t *array) {
+    for (int i = 0; i < LINE_SENSOR_COUNT; i++) {
+        // Ví dụ: Nếu giá trị ADC > Ngưỡng (Threshold) thì coi như phát hiện vạch/vật
+        // Lưu ý: Tùy loại cảm biến mà logic có thể ngược lại ( < Threshold)
+        if (array->RawData[i] > array->Threshold) {
+            array->DigitalResults[i] = true;
+        } else {
+            array->DigitalResults[i] = false;
+        }
+
+        // Tính toán giá trị phần trăm (tùy chọn)
+        array->CalibratedData[i] = (float)array->RawData[i] / 4095.0f;
     }
 }
 
-/**
- * @brief Đọc 5 mắt cảm biến và trả về 1 byte duy nhất
- * Mỗi bit trong byte tương ứng với 1 mắt (Bit 0: Cảm biến 1, Bit 1: Cảm biến 2,...)
- */
-uint8_t LineArray_Read(LineSensorArray_t *array) {
-    uint8_t result = 0;
-
-    for (int i = 0; i < SENSOR_COUNT; i++) {
-        if (HAL_GPIO_ReadPin(array->Sensors[i].Port, array->Sensors[i].Pin) == array->ActiveLevel) {
-            result |= (1 << i); // Ghi bit 1 vào vị trí tương ứng nếu thấy vạch
+bool LineArrayADC_NoDetection(LineArrayADC_t *array) {
+    for (int i = 0; i < LINE_SENSOR_COUNT; i++) {
+        if (array->DigitalResults[i] == true) {
+            return false;
         }
     }
-
-    array->SensorResult = result;
-    return result;
+    return true;
 }
