@@ -1,3 +1,4 @@
-../Hardware/TCRT5000/TCRT5000.c:6:6:LineArrayADC_Init	1
-../Hardware/TCRT5000/TCRT5000.c:15:6:LineArrayADC_UpdateLogic	3
-../Hardware/TCRT5000/TCRT5000.c:30:6:LineArrayADC_NoDetection	3
+../Hardware/TCRT5000/TCRT5000.c:63:6:Line_Init	1
+../Hardware/TCRT5000/TCRT5000.c:77:6:Line_Update	3
+../Hardware/TCRT5000/TCRT5000.c:90:6:Line_NoDetection	3
+../Hardware/TCRT5000/TCRT5000.c:99:6:Line_Write_Data	2

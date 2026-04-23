@@ -55,17 +55,21 @@ void MX_GPIO_Init(void)
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, LEFT_1_Pin|LEFT_2_Pin|RIGHT_1_Pin|RIGHT_2_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pins : Distance_0_Pin Distance_1_Pin Distance_2_Pin Distance_3_Pin */
-  GPIO_InitStruct.Pin = Distance_0_Pin|Distance_1_Pin|Distance_2_Pin|Distance_3_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : Distance_4_Pin Distance_5_Pin */
-  GPIO_InitStruct.Pin = Distance_4_Pin|Distance_5_Pin;
+  /*Configure GPIO pins : PA3 PA4 PA5 PA6
+                           Distance_4_Pin Distance_5_Pin */
+  GPIO_InitStruct.Pin = GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6
+                          |Distance_4_Pin|Distance_5_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : PB0 Distance_0_Pin Distance_1_Pin Distance_2_Pin
+                           Distance_3_Pin */
+  GPIO_InitStruct.Pin = GPIO_PIN_0|Distance_0_Pin|Distance_1_Pin|Distance_2_Pin
+                          |Distance_3_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /*Configure GPIO pin : Buzzer_Pin */
   GPIO_InitStruct.Pin = Buzzer_Pin;

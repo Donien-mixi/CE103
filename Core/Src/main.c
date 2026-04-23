@@ -18,8 +18,6 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "adc.h"
-#include "dma.h"
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
@@ -35,7 +33,13 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-
+typedef enum {
+	STATE_SURVIVAL,
+	STATE_ATTACK,
+	STATE_DEFENSE,
+	STATE_SEARCH,
+	STATE_WAITING
+} RobotState_t;
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -53,11 +57,14 @@
 
 /* USER CODE BEGIN PV */
 Motor_t motorL, motorR;
-LineArrayADC_t	LineArray;
+LineArray_t	LineArray;
 
 E3FArray_t DistanceArray;
 GPIO_TypeDef* e3f_ports[E3F_COUNT] = {GPIOB, GPIOB, GPIOB, GPIOB, GPIOA, GPIOA};
 uint16_t e3f_pins[E3F_COUNT] = {GPIO_PIN_12, GPIO_PIN_13, GPIO_PIN_14, GPIO_PIN_15, GPIO_PIN_8, GPIO_PIN_11};
+
+RobotState_t CurrentState = STATE_WAITING;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -76,6 +83,10 @@ void Find(){
 
 }
 
+void Survival_Mode(void);
+void Attack_Mode(void);
+void Defense_Mode(void);
+void Search_Mode(void);
 
 
 /* USER CODE END 0 */
@@ -109,17 +120,15 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_DMA_Init();
   MX_USART1_UART_Init();
   MX_TIM2_Init();
-  MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
 
   //GPIO_TypeDef* ports_linesensor[5] = {GPIOB, GPIOB, GPIOB, GPIOB, GPIOB};
   //uint16_t pins_linesensor[5] = {GPIO_PIN_5, GPIO_PIN_6, GPIO_PIN_7, GPIO_PIN_8, GPIO_PIN_9};
 
    // Khởi tạo: Vạch đen giả sử là HIGH (GPIO_PIN_SET)
-   //LineArray_Init(&RobotLine, ports_linesensor, pins_linesensor, GPIO_PIN_SET);
+   Line_Init(&LineArray, true); // Thử true hoặc false để khớp với ý muốn
 
    E3FArray_Init(&DistanceArray, e3f_ports, e3f_pins, GPIO_PIN_RESET);
 
@@ -150,10 +159,6 @@ int main(void)
 
 	  Motor_SetSpeed(&motorL, 1000);
 	  Motor_SetSpeed(&motorR, 1000);
-
-	  Find();
-	   printf("%d\n\r", 12); // Trích xuất từng bit từ 4 đến 0
-
 	  HAL_Delay(5000);
 
 	  Motor_SetSpeed(&motorL, 0);
@@ -168,10 +173,45 @@ int main(void)
 	  Motor_SetSpeed(&motorR, 0);
 	  HAL_Delay(5000);
 
+	  Line_Update(&LineArray);
+	  Line_Write_Data(&LineArray);
+	  HAL_Delay(200); // In 5 lần mỗi giây là đủ để quan sát
+
+
+      // 1. CẬP NHẬT DỮ LIỆU CẢM BIẾN
+      Line_Update(&LineArray);
+      E3FArray_Update(&DistanceArray);
+
+//      if (!Line_NoDetection(&LineArray)) {
+//          CurrentState = STATE_SURVIVAL;
+//          Survival_Mode();
+//      }
+//      // ƯU TIÊN 2: TẤN CÔNG (E3F_1, E3F_2, E3F_3)
+//      else if (DistanceArray.Results[1] || DistanceArray.Results[2] || DistanceArray.Results[3]) {
+//          CurrentState = STATE_ATTACK;
+//          Attack_Mode();
+//      }
+//      // ƯU TIÊN 3: PHÒNG THỦ (E3F_0, E3F_4, E3F_5)
+//      else if (DistanceArray.Results[0] || DistanceArray.Results[4] || DistanceArray.Results[5]) {
+//          CurrentState = STATE_DEFENSE;
+//          Defense_Mode();
+//      }
+//      // ƯU TIÊN 4: TÌM KIẾM
+//      else {
+//          CurrentState = STATE_SEARCH;
+//          Search_Mode();
+//      }
+
+      //	  Motor_SetSpeed(&motorL, -1000);
+      //	  Motor_SetSpeed(&motorR, -1000);
+      //	  HAL_Delay(5000);
+
+      HAL_Delay(5); // DELAY NHẸ
+    }
 
   }
   /* USER CODE END 3 */
-}
+
 
 /**
   * @brief System Clock Configuration
@@ -219,7 +259,77 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+void Survival_Mode(void) {
+    //dừng đột ngột để triệt tiêu quán tính
+    Motor_SetSpeed(&motorL, 0);
+    Motor_SetSpeed(&motorR, 0);
+    HAL_Delay(20);
+    if (LineArray.DigitalResults[1] || LineArray.DigitalResults[2] || LineArray.DigitalResults[3]) {
+        Motor_SetSpeed(&motorL, -800);
+        Motor_SetSpeed(&motorR, -800);
+        HAL_Delay(300);
+        // xoay hướng vào trong sân
+        if (LineArray.DigitalResults[1]) { // vạch bên trái xoay phải
+            Motor_SetSpeed(&motorL, 600);
+            Motor_SetSpeed(&motorR, -600);
+        } else { // vạch bên phải hoặc chính giữa xoay trái
+            Motor_SetSpeed(&motorL, -600);
+            Motor_SetSpeed(&motorR, 600);
+        }
+        HAL_Delay(200);
+    }
+    else if (LineArray.DigitalResults[0] || LineArray.DigitalResults[4]) {
+        Motor_SetSpeed(&motorL, 800); // chạy lên
+        Motor_SetSpeed(&motorR, 800);
+        HAL_Delay(300);
+    }
 
+    //dừng lại để vòng lặp tiếp theo đánh giá lại trạng thái an toàn (ai gợi ý cái lòn này)
+    Motor_SetSpeed(&motorL, 0);
+    Motor_SetSpeed(&motorR, 0);
+}
+
+void Attack_Mode(void) {
+    // địch trực diện chơi tối đa công suất
+    if (DistanceArray.Results[2]) {
+        Motor_SetSpeed(&motorL, 1000);
+        Motor_SetSpeed(&motorR, 1000);
+    }
+    // địch lệch trái hơi đánh lái sang trái
+    else if (DistanceArray.Results[1]) {
+        Motor_SetSpeed(&motorL, 600);
+        Motor_SetSpeed(&motorR, 1000);
+    }
+    // địch lệnh phải đánh lái sang phải
+    else if (DistanceArray.Results[3]) {
+        Motor_SetSpeed(&motorL, 1000);
+        Motor_SetSpeed(&motorR, 600);
+    }
+}
+
+void Defense_Mode(void) {
+    // địch bên trái quay trái tại chỗ
+    if (DistanceArray.Results[0]) {
+        Motor_SetSpeed(&motorL, -800);
+        Motor_SetSpeed(&motorR, 800);
+    }
+    // địch bên phải quay phải tại chỗ
+    else if (DistanceArray.Results[4]) {
+        Motor_SetSpeed(&motorL, 800);
+        Motor_SetSpeed(&motorR, -800);
+    }
+    // địch phía sau quay 180 độ mixi
+    else if (DistanceArray.Results[5]) {
+        Motor_SetSpeed(&motorL, 1000);
+        Motor_SetSpeed(&motorR, -1000);
+    }
+}
+
+void Search_Mode(void) {
+    // xe chậm nên chạy vòng cung để search
+    Motor_SetSpeed(&motorL, 400);
+    Motor_SetSpeed(&motorR, 600);
+}
 /* USER CODE END 4 */
 
 /**
