@@ -21,7 +21,7 @@
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
-
+#include <stdio.h>
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "TCRT5000.h"
@@ -143,76 +143,73 @@ int main(void)
   {
     /* USER CODE END WHILE */
 
-    /* USER CODE BEGIN 3 */
-//	 // lineData = LineArray_Read(&RobotLine);
-//
-//	      // 2. In ra màn hình dưới dạng Nhị phân để dễ debug
-//	      printf("Line Sensor: ");
-//	      for (int i = 4; i >= 0; i--) {
-//	          printf("%d", (lineData >> i) & 1); // Trích xuất từng bit từ 4 đến 0
-//	      }
-//
-//	      // 3. In thêm giá trị Decimal (số nguyên) để tiện tính toán PID sau này
-//	      printf(" | Raw: %d\r\n", lineData);
-//
-//	      HAL_Delay(100); // Đợi 100ms rồi in tiếp
+	  /* USER CODE BEGIN 3 */
 
-	  Motor_SetSpeed(&motorL, 1000);
-	  Motor_SetSpeed(&motorR, 1000);
-	  HAL_Delay(5000);
+	        // 1. CẬP NHẬT DỮ LIỆU CẢM BIẾN TỐC ĐỘ CAO
+	        Line_Update(&LineArray);
+	        E3FArray_Update(&DistanceArray);
 
-	  Motor_SetSpeed(&motorL, 0);
-	  Motor_SetSpeed(&motorR, 0);
-	  HAL_Delay(5000);
+	        // Biến cờ hiệu: = 1 nếu có sự kiện đột xuất cần báo cáo ngay cho Web
+	        uint8_t force_web_update = 0;
 
-	  Motor_SetSpeed(&motorL, -1000);
-	  Motor_SetSpeed(&motorR, -1000);
-	  HAL_Delay(5000);
+	        // 2. QUYẾT ĐỊNH TRẠNG THÁI VÀ ĐIỀU KHIỂN ĐỘNG CƠ
 
-	  Motor_SetSpeed(&motorL, 0);
-	  Motor_SetSpeed(&motorR, 0);
-	  HAL_Delay(5000);
+	        // ƯU TIÊN 1: SINH TỒN (Né vạch trắng)
+	        if (!Line_NoDetection(&LineArray)) {
+	            if (CurrentState != STATE_SURVIVAL) {
+	                printf(">>> [BÁO ĐỘNG] Cham vach trang! Kich hoat SINH TON.\n");
+	                CurrentState = STATE_SURVIVAL;
+	                force_web_update = 1; // Bật cờ ép cập nhật Web ngay lập tức
+	            }
+	            Survival_Mode();
+	        }
+	        // ƯU TIÊN 2: TẤN CÔNG (Địch trực diện hoặc hơi lệch)
+	        else if (DistanceArray.Results[1] || DistanceArray.Results[2] || DistanceArray.Results[3]) {
+	            if (CurrentState != STATE_ATTACK) {
+	                printf(">>> [MỤC TIÊU] Phat hien dich phia truoc! TAN CONG.\n");
+	                CurrentState = STATE_ATTACK;
+	                force_web_update = 1;
+	            }
+	            Attack_Mode();
+	        }
+	        // ƯU TIÊN 3: PHÒNG THỦ (Địch tạt sườn hoặc sau lưng)
+	        else if (DistanceArray.Results[0] || DistanceArray.Results[4] || DistanceArray.Results[5]) {
+	            if (CurrentState != STATE_DEFENSE) {
+	                printf(">>> [CẢNH BÁO] Co dich ben suon/phia sau! PHONG THU.\n");
+	                CurrentState = STATE_DEFENSE;
+	                force_web_update = 1;
+	            }
+	            Defense_Mode();
+	        }
+	        // ƯU TIÊN 4: TÌM KIẾM (Sân trống)
+	        else {
+	            if (CurrentState != STATE_SEARCH) {
+	                printf(">>> [TÌM KIẾM] San trong, dang xoay tim muc tieu...\n");
+	                CurrentState = STATE_SEARCH;
+	                force_web_update = 1;
+	            }
+	            Search_Mode();
+	        }
 
-	  Line_Update(&LineArray);
-	  Line_Write_Data(&LineArray);
-	  HAL_Delay(200); // In 5 lần mỗi giây là đủ để quan sát
+	        // 3. BẮN GÓI TIN TELEMETRY LÊN WEB (HOÀN HẢO THỜI GIAN THỰC)
+	        static uint32_t last_telemetry_time = 0;
 
+	        // Điều kiện gửi: Nếu đủ 100ms HOẶC có sự kiện khẩn cấp (đổi trạng thái)
+	        if ((HAL_GetTick() - last_telemetry_time >= 100) || force_web_update == 1) {
 
-      // 1. CẬP NHẬT DỮ LIỆU CẢM BIẾN
-      Line_Update(&LineArray);
-      E3FArray_Update(&DistanceArray);
+	            printf("{\"type\": \"telemetry\", \"line\": [%d,%d,%d,%d,%d], \"e3f\": [%d,%d,%d,%d,%d,%d], \"motor_l\": %d, \"motor_r\": %d}\n",
+	                   LineArray.DigitalResults[0], LineArray.DigitalResults[1], LineArray.DigitalResults[2], LineArray.DigitalResults[3], LineArray.DigitalResults[4],
+	                   DistanceArray.Results[0], DistanceArray.Results[1], DistanceArray.Results[2], DistanceArray.Results[3], DistanceArray.Results[4], DistanceArray.Results[5],
+	                   (int)TIM2->CCR2, (int)TIM2->CCR3);
 
-//      if (!Line_NoDetection(&LineArray)) {
-//          CurrentState = STATE_SURVIVAL;
-//          Survival_Mode();
-//      }
-//      // ƯU TIÊN 2: TẤN CÔNG (E3F_1, E3F_2, E3F_3)
-//      else if (DistanceArray.Results[1] || DistanceArray.Results[2] || DistanceArray.Results[3]) {
-//          CurrentState = STATE_ATTACK;
-//          Attack_Mode();
-//      }
-//      // ƯU TIÊN 3: PHÒNG THỦ (E3F_0, E3F_4, E3F_5)
-//      else if (DistanceArray.Results[0] || DistanceArray.Results[4] || DistanceArray.Results[5]) {
-//          CurrentState = STATE_DEFENSE;
-//          Defense_Mode();
-//      }
-//      // ƯU TIÊN 4: TÌM KIẾM
-//      else {
-//          CurrentState = STATE_SEARCH;
-//          Search_Mode();
-//      }
+	            last_telemetry_time = HAL_GetTick(); // Đặt lại mốc thời gian
+	            force_web_update = 0;                // Hạ cờ khẩn cấp xuống
+	        }
 
-      //	  Motor_SetSpeed(&motorL, -1000);
-      //	  Motor_SetSpeed(&motorR, -1000);
-      //	  HAL_Delay(5000);
-
-      HAL_Delay(5); // DELAY NHẸ
-    }
-
-  }
-  /* USER CODE END 3 */
-
-
+	        HAL_Delay(5); // DELAY NHẸ giúp ổn định hệ thống
+	      }
+	    /* USER CODE END 3 */
+}
 /**
   * @brief System Clock Configuration
   * @retval None
