@@ -11,6 +11,7 @@
 #include "stm32f4xx_hal.h"
 #include <stdbool.h>
 
+
 #define E3F_COUNT 6
 
 typedef struct {
@@ -33,5 +34,8 @@ void E3FArray_Update(E3FArray_t *array);
 
 // Kiểm tra xem CẢ DÀN có đang TRỐNG (không phát hiện gì) hay không
 bool E3FArray_NoDetection(E3FArray_t *array);
+
+void Distance_Write_Data(E3FArray_t *array);
+
 
 #endif /* E3F_E3F_H_ */

@@ -1,6 +1,6 @@
 ################################################################################
 # Automatically-generated file. Do not edit!
-# Toolchain: GNU Tools for STM32 (13.3.rel1)
+# Toolchain: GNU Tools for STM32 (14.3.rel1)
 ################################################################################
 
 # Add inputs and outputs from these tool invocations to the build variables 
@@ -16,7 +16,7 @@ C_DEPS += \
 
 # Each subdirectory must supply rules for building sources it contributes
 Hardware/Motor/%.o Hardware/Motor/%.su Hardware/Motor/%.cyclo: ../Hardware/Motor/%.c Hardware/Motor/subdir.mk
-	arm-none-eabi-gcc "$<" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F411xE -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -I"D:/HK4/VXL_VDK/ROBOT_SUMO/Sensor/test_sensor/Hardware" -I"D:/HK4/VXL_VDK/ROBOT_SUMO/Sensor/test_sensor/Hardware/TCRT5000" -I"D:/HK4/VXL_VDK/ROBOT_SUMO/Sensor/test_sensor/Hardware/Motor" -I"D:/HK4/VXL_VDK/ROBOT_SUMO/Sensor/test_sensor/Hardware/E3F" -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "$@"
+	arm-none-eabi-gcc "$<" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F411xE -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -I"D:/stm32_workspace/sumo_robot_CE103/Hardware" -I"D:/stm32_workspace/sumo_robot_CE103/Hardware/TCRT5000" -I"D:/stm32_workspace/sumo_robot_CE103/Hardware/Motor" -I"D:/stm32_workspace/sumo_robot_CE103/Hardware/E3F" -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "$@"
 
 clean: clean-Hardware-2f-Motor
 

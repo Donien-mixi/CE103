@@ -130,11 +130,14 @@ int main(void)
    // Khởi tạo: Vạch đen giả sử là HIGH (GPIO_PIN_SET)
    Line_Init(&LineArray, true); // Thử true hoặc false để khớp với ý muốn
 
-   E3FArray_Init(&DistanceArray, e3f_ports, e3f_pins, GPIO_PIN_RESET);
+   E3FArray_Init(&DistanceArray, e3f_ports, e3f_pins, GPIO_PIN_SET);
 
    Motor_Init(&motorL, &htim2, TIM_CHANNEL_2, GPIOB, GPIO_PIN_6, GPIOB, GPIO_PIN_7);
    Motor_Init(&motorR, &htim2, TIM_CHANNEL_3, GPIOB, GPIO_PIN_8, GPIOB, GPIO_PIN_9);
 
+   Motor_SetSpeed(&motorL, 0);
+   Motor_SetSpeed(&motorR, 0);
+   HAL_Delay(5000);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -149,47 +152,66 @@ int main(void)
 	        Line_Update(&LineArray);
 	        E3FArray_Update(&DistanceArray);
 
+
+
+
 	        // Biến cờ hiệu: = 1 nếu có sự kiện đột xuất cần báo cáo ngay cho Web
 	        uint8_t force_web_update = 0;
+
+        	if (DistanceArray.Results[1] == false && DistanceArray.Results[2] == false && DistanceArray.Results[3] == false) {
+        	    Motor_SetSpeed(&motorL, 0);
+        	    Motor_SetSpeed(&motorR, 0);
+
+        }
 
 	        // 2. QUYẾT ĐỊNH TRẠNG THÁI VÀ ĐIỀU KHIỂN ĐỘNG CƠ
 
 	        // ƯU TIÊN 1: SINH TỒN (Né vạch trắng)
-	        if (!Line_NoDetection(&LineArray)) {
-	            if (CurrentState != STATE_SURVIVAL) {
-	                printf(">>> [BÁO ĐỘNG] Cham vach trang! Kich hoat SINH TON.\n");
-	                CurrentState = STATE_SURVIVAL;
-	                force_web_update = 1; // Bật cờ ép cập nhật Web ngay lập tức
-	            }
-	            Survival_Mode();
-	        }
+//	        if (!Line_NoDetection(&LineArray)) {
+//	            if (CurrentState != STATE_SURVIVAL) {
+//	                printf("Cham vach trang! Kich hoat SINH TON.\n");
+//	                CurrentState = STATE_SURVIVAL;
+//	                force_web_update = 1; // Bật cờ ép cập nhật Web ngay lập tức
+//	            }
+//	            Survival_Mode();
+//	        }
 	        // ƯU TIÊN 2: TẤN CÔNG (Địch trực diện hoặc hơi lệch)
-	        else if (DistanceArray.Results[1] || DistanceArray.Results[2] || DistanceArray.Results[3]) {
+	        else
+	        	if (DistanceArray.Results[1] || DistanceArray.Results[2] || DistanceArray.Results[3]) {
 	            if (CurrentState != STATE_ATTACK) {
-	                printf(">>> [MỤC TIÊU] Phat hien dich phia truoc! TAN CONG.\n");
+	                printf("Phat hien dich phia truoc! TAN CONG.\n");
 	                CurrentState = STATE_ATTACK;
 	                force_web_update = 1;
 	            }
 	            Attack_Mode();
-	        }
-	        // ƯU TIÊN 3: PHÒNG THỦ (Địch tạt sườn hoặc sau lưng)
-	        else if (DistanceArray.Results[0] || DistanceArray.Results[4] || DistanceArray.Results[5]) {
-	            if (CurrentState != STATE_DEFENSE) {
-	                printf(">>> [CẢNH BÁO] Co dich ben suon/phia sau! PHONG THU.\n");
-	                CurrentState = STATE_DEFENSE;
-	                force_web_update = 1;
+
 	            }
-	            Defense_Mode();
+
+//	        // ƯU TIÊN 3: PHÒNG THỦ (Địch tạt sườn hoặc sau lưng)
+//	        else if (DistanceArray.Results[0] || DistanceArray.Results[4] || DistanceArray.Results[5]) {
+//	            if (CurrentState != STATE_DEFENSE) {
+//	                printf("Co dich ben suon/phia sau! PHONG THU.\n");
+//	                CurrentState = STATE_DEFENSE;
+//	                force_web_update = 1;
+//	            }
+//	            Defense_Mode();
+//	        }
+	       //  ƯU TIÊN 4: TÌM KIẾM (Sân trống)
+
+
+
+	        //else
+	        {
+
+//	            if (CurrentState != STATE_SEARCH) {
+//	                printf("San trong, dang xoay tim muc tieu...\n");
+//	                CurrentState = STATE_SEARCH;
+//	                force_web_update = 1;
+//	            }
+//	            Search_Mode();
 	        }
-	        // ƯU TIÊN 4: TÌM KIẾM (Sân trống)
-	        else {
-	            if (CurrentState != STATE_SEARCH) {
-	                printf(">>> [TÌM KIẾM] San trong, dang xoay tim muc tieu...\n");
-	                CurrentState = STATE_SEARCH;
-	                force_web_update = 1;
-	            }
-	            Search_Mode();
-	        }
+
+
 
 	        // 3. BẮN GÓI TIN TELEMETRY LÊN WEB (HOÀN HẢO THỜI GIAN THỰC)
 	        static uint32_t last_telemetry_time = 0;
@@ -201,6 +223,9 @@ int main(void)
 	                   LineArray.DigitalResults[0], LineArray.DigitalResults[1], LineArray.DigitalResults[2], LineArray.DigitalResults[3], LineArray.DigitalResults[4],
 	                   DistanceArray.Results[0], DistanceArray.Results[1], DistanceArray.Results[2], DistanceArray.Results[3], DistanceArray.Results[4], DistanceArray.Results[5],
 	                   (int)TIM2->CCR2, (int)TIM2->CCR3);
+
+	        	Line_Write_Data(&LineArray);
+	        	Distance_Write_Data(&DistanceArray);
 
 	            last_telemetry_time = HAL_GetTick(); // Đặt lại mốc thời gian
 	            force_web_update = 0;                // Hạ cờ khẩn cấp xuống
@@ -292,28 +317,28 @@ void Attack_Mode(void) {
         Motor_SetSpeed(&motorL, 1000);
         Motor_SetSpeed(&motorR, 1000);
     }
-    // địch lệch trái hơi đánh lái sang trái
+    // địch lệch trái hơi đánh lái sang phải
     else if (DistanceArray.Results[1]) {
-        Motor_SetSpeed(&motorL, 600);
-        Motor_SetSpeed(&motorR, 1000);
-    }
-    // địch lệnh phải đánh lái sang phải
-    else if (DistanceArray.Results[3]) {
         Motor_SetSpeed(&motorL, 1000);
         Motor_SetSpeed(&motorR, 600);
+    }
+    // địch lệnh phải đánh lái sang trái
+    else if (DistanceArray.Results[3]) {
+        Motor_SetSpeed(&motorL, 600);
+        Motor_SetSpeed(&motorR, 1000);
     }
 }
 
 void Defense_Mode(void) {
     // địch bên trái quay trái tại chỗ
     if (DistanceArray.Results[0]) {
-        Motor_SetSpeed(&motorL, -800);
-        Motor_SetSpeed(&motorR, 800);
+        Motor_SetSpeed(&motorL, -1000);
+        Motor_SetSpeed(&motorR, 1000);
     }
     // địch bên phải quay phải tại chỗ
     else if (DistanceArray.Results[4]) {
-        Motor_SetSpeed(&motorL, 800);
-        Motor_SetSpeed(&motorR, -800);
+        Motor_SetSpeed(&motorL, 1000);
+        Motor_SetSpeed(&motorR, -1000);
     }
     // địch phía sau quay 180 độ mixi
     else if (DistanceArray.Results[5]) {
@@ -324,8 +349,8 @@ void Defense_Mode(void) {
 
 void Search_Mode(void) {
     // xe chậm nên chạy vòng cung để search
-    Motor_SetSpeed(&motorL, 400);
-    Motor_SetSpeed(&motorR, 600);
+    Motor_SetSpeed(&motorL, 1000);
+    Motor_SetSpeed(&motorR, -1000);
 }
 /* USER CODE END 4 */
 

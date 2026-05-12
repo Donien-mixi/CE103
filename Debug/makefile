@@ -1,6 +1,6 @@
 ################################################################################
 # Automatically-generated file. Do not edit!
-# Toolchain: GNU Tools for STM32 (13.3.rel1)
+# Toolchain: GNU Tools for STM32 (14.3.rel1)
 ################################################################################
 
 -include ../makefile.init
@@ -37,34 +37,34 @@ $(wildcard ../makefile.init) \
 $(wildcard ../makefile.targets) \
 
 
-BUILD_ARTIFACT_NAME := test_sensor
+BUILD_ARTIFACT_NAME := sumo_robot_CE103
 BUILD_ARTIFACT_EXTENSION := elf
 BUILD_ARTIFACT_PREFIX :=
 BUILD_ARTIFACT := $(BUILD_ARTIFACT_PREFIX)$(BUILD_ARTIFACT_NAME)$(if $(BUILD_ARTIFACT_EXTENSION),.$(BUILD_ARTIFACT_EXTENSION),)
 
 # Add inputs and outputs from these tool invocations to the build variables 
 EXECUTABLES += \
-test_sensor.elf \
+sumo_robot_CE103.elf \
 
 MAP_FILES += \
-test_sensor.map \
+sumo_robot_CE103.map \
 
 SIZE_OUTPUT += \
 default.size.stdout \
 
 OBJDUMP_LIST += \
-test_sensor.list \
+sumo_robot_CE103.list \
 
 
 # All Target
 all: main-build
 
 # Main-build Target
-main-build: test_sensor.elf secondary-outputs
+main-build: sumo_robot_CE103.elf secondary-outputs
 
 # Tool invocations
-test_sensor.elf test_sensor.map: $(OBJS) $(USER_OBJS) D:\HK4\VXL_VDK\ROBOT_SUMO\Sensor\test_sensor\STM32F411CEUX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "test_sensor.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"D:\HK4\VXL_VDK\ROBOT_SUMO\Sensor\test_sensor\STM32F411CEUX_FLASH.ld" --specs=nosys.specs -Wl,-Map="test_sensor.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+sumo_robot_CE103.elf sumo_robot_CE103.map: $(OBJS) $(USER_OBJS) D:\stm32_workspace\sumo_robot_CE103\STM32F411CEUX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "sumo_robot_CE103.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"D:\stm32_workspace\sumo_robot_CE103\STM32F411CEUX_FLASH.ld" --specs=nosys.specs -Wl,-Map="sumo_robot_CE103.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
@@ -73,14 +73,14 @@ default.size.stdout: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
 	@echo 'Finished building: $@'
 	@echo ' '
 
-test_sensor.list: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-objdump -h -S $(EXECUTABLES) > "test_sensor.list"
+sumo_robot_CE103.list: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-objdump -h -S $(EXECUTABLES) > "sumo_robot_CE103.list"
 	@echo 'Finished building: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) default.size.stdout test_sensor.elf test_sensor.list test_sensor.map
+	-$(RM) default.size.stdout sumo_robot_CE103.elf sumo_robot_CE103.list sumo_robot_CE103.map
 	-@echo ' '
 
 secondary-outputs: $(SIZE_OUTPUT) $(OBJDUMP_LIST)

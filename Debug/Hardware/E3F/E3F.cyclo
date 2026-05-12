@@ -1,3 +1,4 @@
-../Hardware/E3F/E3F.c:12:6:E3FArray_Init	2
-../Hardware/E3F/E3F.c:22:6:E3FArray_Update	2
-../Hardware/E3F/E3F.c:32:6:E3FArray_NoDetection	3
+../Hardware/E3F/E3F.c:13:6:E3FArray_Init	2
+../Hardware/E3F/E3F.c:23:6:E3FArray_Update	2
+../Hardware/E3F/E3F.c:33:6:E3FArray_NoDetection	3
+../Hardware/E3F/E3F.c:43:6:Distance_Write_Data	2

@@ -29,9 +29,9 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h \
  ../Core/Inc/tim.h ../Core/Inc/main.h ../Core/Inc/usart.h \
  ../Core/Inc/gpio.h \
- D:/HK4/VXL_VDK/ROBOT_SUMO/Sensor/test_sensor/Hardware/TCRT5000/TCRT5000.h \
- D:/HK4/VXL_VDK/ROBOT_SUMO/Sensor/test_sensor/Hardware/Motor/Motor.h \
- D:/HK4/VXL_VDK/ROBOT_SUMO/Sensor/test_sensor/Hardware/E3F/E3F.h
+ D:/stm32_workspace/sumo_robot_CE103/Hardware/TCRT5000/TCRT5000.h \
+ D:/stm32_workspace/sumo_robot_CE103/Hardware/Motor/Motor.h \
+ D:/stm32_workspace/sumo_robot_CE103/Hardware/E3F/E3F.h
 ../Core/Inc/main.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h:
 ../Core/Inc/stm32f4xx_hal_conf.h:
@@ -65,6 +65,6 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
 ../Core/Inc/main.h:
 ../Core/Inc/usart.h:
 ../Core/Inc/gpio.h:
-D:/HK4/VXL_VDK/ROBOT_SUMO/Sensor/test_sensor/Hardware/TCRT5000/TCRT5000.h:
-D:/HK4/VXL_VDK/ROBOT_SUMO/Sensor/test_sensor/Hardware/Motor/Motor.h:
-D:/HK4/VXL_VDK/ROBOT_SUMO/Sensor/test_sensor/Hardware/E3F/E3F.h:
+D:/stm32_workspace/sumo_robot_CE103/Hardware/TCRT5000/TCRT5000.h:
+D:/stm32_workspace/sumo_robot_CE103/Hardware/Motor/Motor.h:
+D:/stm32_workspace/sumo_robot_CE103/Hardware/E3F/E3F.h:

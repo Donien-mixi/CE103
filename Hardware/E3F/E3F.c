@@ -6,6 +6,7 @@
  */
 
 #include "E3F.h"
+#include <stdio.h>
 
 
 
@@ -15,7 +16,7 @@ void E3FArray_Init(E3FArray_t *array, GPIO_TypeDef** ports, uint16_t* pins, GPIO
     for (int i = 0; i < E3F_COUNT; i++) {
         array->Sensors[i].Port = ports[i];
         array->Sensors[i].Pin = pins[i];
-        array->Results[i] = false;
+        array->Results[i] = !activeLevel;
     }
 }
 
@@ -37,4 +38,12 @@ bool E3FArray_NoDetection(E3FArray_t *array) {
         }
     }
     return true; // Tất cả đều false
+}
+
+void Distance_Write_Data(E3FArray_t *array) {
+    printf("Distance Logic: ");
+    for (int i = 0; i < E3F_COUNT; i++) {
+        printf("%d ", array->Results[i] ? 1 : 0);
+    }
+    printf("\r\n");
 }
