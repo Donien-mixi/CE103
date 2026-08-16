@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section name="Workbench">
+	<item key="hasShownOverlayPopupBefore" value="true"/>
+	<item key="replaceBarOpen" value="false"/>
+	<list key="searchhistory">
+		<item value="_write"/>
+		<item value="begin 3"/>
+		<item value="uint16_t RawData"/>
+		<item value="uint16_t RawData[LINE_SENSOR_COUNT"/>
+		<item value="LineArray.DigitalResults"/>
+		<item value="DigitalResults"/>
+		<item value="    if (LineArray.DigitalResults[1] || LineArray.DigitalResults[2] || LineArray.DigitalResults[3]) {"/>
+		<item value="ineArrayADC_Init(&amp;LineArray, &amp;hadc1, 2000);"/>
+		<item value="code begin 2"/>
+	</list>
+</section>
