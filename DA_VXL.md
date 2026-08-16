@@ -58,7 +58,6 @@ Giao diện dashboard hiện đại với màu sắc tối (Dark Theme), chứa 
 ![Hình ảnh minh chứng](1786840815431_53776763891348135_3206772400995361176_3eeb0d5d0fee7f25c979ddc41200ac37.jpg)
 
 ### Video Hoạt động
-<video width="100%" controls>
-  <source src="1786840896051_53776763891348135_3206772400995361176.mp4" type="video/mp4">
-  Trình duyệt/Trình đọc của bạn không hỗ trợ thẻ video.
-</video>
+[**▶️ Bấm vào đây để xem Video Hoạt động**](1786840896051_53776763891348135_3206772400995361176.mp4)
+
+*(GitHub sẽ mở trình phát video khi bạn click vào link trên)*
